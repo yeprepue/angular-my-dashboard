@@ -1,7 +1,21 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
+  // ==========================================
+  // 1. RUTAS PÚBLICAS (Pantalla completa)
+  // ==========================================
+  {
+    path: 'inicio', // Entras con localhost:4200/inicio
+    title: 'Pre-salud | Bienvenido',
+    loadComponent: () => import('./dashboard/pages/landing/landing.component')
+  },
 
+  // Aquí irá tu Login más adelante...
+  // { path: 'login', loadComponent: ... }
+
+  // ==========================================
+  // 2. RUTAS PRIVADAS (Con el menú del Dashboard)
+  // ==========================================
   {
     path: 'dashboard',
     loadComponent: () => import('./dashboard/dashboard.component'),
@@ -17,41 +31,33 @@ export const routes: Routes = [
         loadComponent: () => import('./dashboard/pages/control-flow/control-flow.component'),
       },
       {
-        path: 'defer-options',
-        title: 'Defer Options',
-        loadComponent: () => import('./dashboard/pages/defer-options/defer-options.component'),
-      },
-      {
-        path: 'defer-views',
-        title: 'Defer Views',
-        loadComponent: () => import('./dashboard/pages/defer-views/defer-views.component'),
-      },
-      {
-        path: 'user/:id',
-        title: 'User View',
-        loadComponent: () => import('./dashboard/pages/user/user.component'),
-      },
-      {
         path: 'user-list',
         title: 'User List',
         loadComponent: () => import('./dashboard/pages/users/users.component'),
       },
+      // ... (puedes dejar el resto de tus rutas de ejemplo aquí) ...
+
+      // Ruta por defecto DENTRO del dashboard
       {
-        path: 'view-transition',
-        title: 'View Transition',
-        loadComponent: () => import('./dashboard/pages/view-transition/view-transition.component'),
-      },
-      {
-        path:'', redirectTo: 'control-flow', pathMatch: 'full',
+        path: '',
+        redirectTo: 'control-flow', // O la que quieras que sea la pantalla principal del panel
+        pathMatch: 'full',
       }
     ]
   },
+
+  // ==========================================
+  // 3. RUTA POR DEFECTO GLOBAL
+  // ==========================================
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/inicio', // Apenas abra la app, lo mandamos a la Landing
     pathMatch: 'full'
+  },
+
+  // Comodín para páginas no encontradas (Error 404)
+  {
+    path: '**',
+    redirectTo: '/inicio'
   }
-
-
-
 ];
