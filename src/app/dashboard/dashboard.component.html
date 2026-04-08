@@ -1,4 +1,9 @@
-<p>dashboard works!</p>
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidemenu -->
+  <app-sidemenu></app-sidemenu>
 
-
-<router-outlet />
+  <!-- Main Content -->
+  <div class="flex-1 overflow-auto">
+    <router-outlet></router-outlet>
+  </div>
+</div>

@@ -1,23 +1,54 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards';
 
 export const routes: Routes = [
   // ==========================================
-  // 1. RUTAS PÚBLICAS (Pantalla completa)
+  // 1. RUTAS PÚBLICAS (Sin autenticación)
   // ==========================================
   {
-    path: 'inicio', // Entras con localhost:4200/inicio
+    path: 'inicio',
     title: 'Pre-salud | Bienvenido',
     loadComponent: () => import('./dashboard/pages/landing/landing.component')
   },
 
-  // Aquí irá tu Login más adelante...
-  // { path: 'login', loadComponent: ... }
+  // RUTAS DE AUTENTICACIÓN
+  {
+    path: 'auth',
+    children: [
+      {
+        path: 'login',
+        title: 'Pre-salud | Iniciar Sesión',
+        loadComponent: () => import('./features/auth/pages/login.component').then(m => m.LoginComponent),
+      },
+      {
+        path: 'register',
+        title: 'Pre-salud | Registrarse',
+        loadComponent: () => import('./features/auth/pages/register.component').then(m => m.RegisterComponent),
+      },
+      {
+        path: 'forgot-password',
+        title: 'Pre-salud | Recuperar Contraseña',
+        loadComponent: () => import('./features/auth/pages/forgot-password.component').then(m => m.ForgotPasswordComponent),
+      },
+      {
+        path: 'reset-password/:token',
+        title: 'Pre-salud | Cambiar Contraseña',
+        loadComponent: () => import('./features/auth/pages/reset-password.component').then(m => m.ResetPasswordComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'login',
+        pathMatch: 'full'
+      }
+    ]
+  },
 
   // ==========================================
-  // 2. RUTAS PRIVADAS (Con el menú del Dashboard)
+  // 2. RUTAS PRIVADAS (Con autenticación)
   // ==========================================
   {
     path: 'dashboard',
+    canActivate: [authGuard],
     loadComponent: () => import('./dashboard/dashboard.component'),
     children: [
       {
@@ -35,12 +66,14 @@ export const routes: Routes = [
         title: 'User List',
         loadComponent: () => import('./dashboard/pages/users/users.component'),
       },
-      // ... (puedes dejar el resto de tus rutas de ejemplo aquí) ...
-
-      // Ruta por defecto DENTRO del dashboard
+      {
+        path: 'citas',
+        title: 'Citas Médicas',
+        loadComponent: () => import('./features/appointments/pages/appointments.component').then(m => m.AppointmentsComponent),
+      },
       {
         path: '',
-        redirectTo: 'control-flow', // O la que quieras que sea la pantalla principal del panel
+        redirectTo: 'control-flow',
         pathMatch: 'full',
       }
     ]
@@ -51,11 +84,11 @@ export const routes: Routes = [
   // ==========================================
   {
     path: '',
-    redirectTo: '/inicio', // Apenas abra la app, lo mandamos a la Landing
+    redirectTo: '/inicio',
     pathMatch: 'full'
   },
 
-  // Comodín para páginas no encontradas (Error 404)
+  // Comodín para páginas no encontradas
   {
     path: '**',
     redirectTo: '/inicio'
