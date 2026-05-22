@@ -10,8 +10,14 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+  expiracion: string;
   refreshToken?: string;
-  user: User;
+  usuario: {
+    id: number;
+    nombreCompleto: string;
+    email: string;
+    rolId: number;
+  };
 }
 
 export interface RegisterRequest {
@@ -32,20 +38,16 @@ export interface ResetPasswordRequest {
 }
 
 export interface User {
-  id: string;
+  id: number;
+  nombreCompleto: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  createdAt: Date;
-  lastLogin?: Date;
-  isActive: boolean;
+  rolId: number;
 }
 
 export enum UserRole {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-  GUEST = 'GUEST'
+  ADMIN = 1,
+  USER = 2,
+  GUEST = 3
 }
 
 export interface AuthState {
@@ -58,8 +60,9 @@ export interface AuthState {
 
 export interface JwtPayload {
   sub: string;
+  nombre: string;
   email: string;
-  role: UserRole;
+  role: number;
   iat: number;
   exp: number;
 }

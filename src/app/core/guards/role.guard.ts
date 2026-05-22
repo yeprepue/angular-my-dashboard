@@ -6,9 +6,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Router, CanActivateFn, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { TokenService } from '../services/token.service';
-import { UserRole } from '../models';
 
-export const roleGuard = (allowedRoles: UserRole[]): CanActivateFn => {
+export const roleGuard = (allowedRoles: number[]): CanActivateFn => {
   return (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
     const tokenService = inject(TokenService);
     const router = inject(Router);
@@ -19,7 +18,6 @@ export const roleGuard = (allowedRoles: UserRole[]): CanActivateFn => {
       return true;
     }
 
-    // Redirigir a acceso denegado o inicio
     router.navigate(['/']);
     return false;
   };

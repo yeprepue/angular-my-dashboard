@@ -6,7 +6,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { tap, catchError, map } from 'rxjs/operators';
 import {
   LoginRequest,
   LoginResponse,
@@ -69,14 +69,19 @@ export class AuthService {
     return this.apiService
       .post<LoginResponse>('/Auth/login', credentials)
       .pipe(
-        map(response => response.data!),
         tap(response => {
           this.tokenService.setToken(response.token);
           if (response.refreshToken) {
             this.tokenService.setRefreshToken(response.refreshToken);
           }
+          const user = {
+            id: response.usuario.id,
+            nombreCompleto: response.usuario.nombreCompleto,
+            email: response.usuario.email,
+            rolId: response.usuario.rolId
+          };
           this.authStateSubject.next({
-            user: response.user,
+            user: user,
             token: response.token,
             isAuthenticated: true,
             isLoading: false,
@@ -99,14 +104,19 @@ export class AuthService {
     return this.apiService
       .post<LoginResponse>('/Auth/registro', data)
       .pipe(
-        map(response => response.data!),
         tap(response => {
           this.tokenService.setToken(response.token);
           if (response.refreshToken) {
             this.tokenService.setRefreshToken(response.refreshToken);
           }
+          const user = {
+            id: response.usuario.id,
+            nombreCompleto: response.usuario.nombreCompleto,
+            email: response.usuario.email,
+            rolId: response.usuario.rolId
+          };
           this.authStateSubject.next({
-            user: response.user,
+            user: user,
             token: response.token,
             isAuthenticated: true,
             isLoading: false,

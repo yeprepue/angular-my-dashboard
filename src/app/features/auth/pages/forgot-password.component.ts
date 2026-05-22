@@ -50,7 +50,7 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
   private subscribeToAuthState(): void {
     this.authService.isLoading$
       .pipe(takeUntil(this.destroy$))
-      .subscribe(isLoading => {
+      .subscribe((isLoading: boolean) => {
         this.isLoading = isLoading;
       });
   }

@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { JwtPayload, User, UserRole } from '../models';
+import { JwtPayload, User } from '../models';
 
 @Injectable({
   providedIn: 'root'
@@ -125,27 +125,24 @@ export class TokenService {
     }
 
     return {
-      id: payload.sub,
+      id: Number(payload.sub),
       email: payload.email,
-      role: payload.role,
-      firstName: '',
-      lastName: '',
-      createdAt: new Date(),
-      isActive: true
+      nombreCompleto: payload.nombre || '',
+      rolId: payload.role
     };
   }
 
   /**
    * Obtiene el rol del usuario desde el token
    */
-  getUserRole(): UserRole | null {
+  getUserRole(): number | null {
     const token = this.getToken();
     if (!token) {
       return null;
     }
 
     const payload = this.decodeToken(token);
-    return payload?.role || null;
+    return payload?.role ?? null;
   }
 
   /**

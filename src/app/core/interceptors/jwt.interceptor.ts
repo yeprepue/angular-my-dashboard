@@ -24,7 +24,6 @@ export class JwtInterceptor implements HttpInterceptor {
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
-    // Agregar token a las solicitudes autenticadas
     if (this.shouldAddToken(request)) {
       const token = this.tokenService.getToken();
       if (token) {
@@ -46,7 +45,6 @@ export class JwtInterceptor implements HttpInterceptor {
    * Determina si se debe agregar el token a la solicitud
    */
   private shouldAddToken(request: HttpRequest<any>): boolean {
-    // No agregar token a solicitudes públicas
     const publicEndpoints = ['/Auth/login', '/Auth/registro', '/Auth/forgot-password', '/Auth/reset-password'];
     return !publicEndpoints.some(endpoint => request.url.includes(endpoint));
   }

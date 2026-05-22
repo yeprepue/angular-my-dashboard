@@ -4,10 +4,9 @@
  */
 
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, timeout, filter, map } from 'rxjs/operators';
-import { ApiResponse, ApiError } from '../models';
+import { catchError, timeout } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -24,15 +23,14 @@ export class ApiService {
    * @param endpoint - Ruta relativa del endpoint
    * @param options - Opciones adicionales de HTTP
    */
-  get<T>(endpoint: string, options?: any): Observable<ApiResponse<T>> {
+  get<T>(endpoint: string, options?: any): Observable<any> {
     return this.http
-      .get<ApiResponse<T>>(`${this.API_BASE_URL}${endpoint}`, {
+      .get(`${this.API_BASE_URL}${endpoint}`, {
         ...options,
-        headers: this.getHeaders(options?.headers)
+        headers: this.getHeaders(options?.headers),
+        observe: 'body'
       })
       .pipe(
-        filter(event => event instanceof HttpResponse),
-        map(response => (response as HttpResponse<ApiResponse<T>>).body as ApiResponse<T>),
         timeout(this.REQUEST_TIMEOUT),
         catchError(error => this.handleError(error))
       );
@@ -44,15 +42,14 @@ export class ApiService {
    * @param data - Datos a enviar
    * @param options - Opciones adicionales de HTTP
    */
-  post<T>(endpoint: string, data: any, options?: any): Observable<ApiResponse<T>> {
+  post<T>(endpoint: string, data: any, options?: any): Observable<any> {
     return this.http
-      .post<ApiResponse<T>>(`${this.API_BASE_URL}${endpoint}`, data, {
+      .post(`${this.API_BASE_URL}${endpoint}`, data, {
         ...options,
-        headers: this.getHeaders(options?.headers)
+        headers: this.getHeaders(options?.headers),
+        observe: 'body'
       })
       .pipe(
-        filter(event => event instanceof HttpResponse),
-        map(response => (response as HttpResponse<ApiResponse<T>>).body as ApiResponse<T>),
         timeout(this.REQUEST_TIMEOUT),
         catchError(error => this.handleError(error))
       );
@@ -64,15 +61,14 @@ export class ApiService {
    * @param data - Datos a enviar
    * @param options - Opciones adicionales de HTTP
    */
-  put<T>(endpoint: string, data: any, options?: any): Observable<ApiResponse<T>> {
+  put<T>(endpoint: string, data: any, options?: any): Observable<any> {
     return this.http
-      .put<ApiResponse<T>>(`${this.API_BASE_URL}${endpoint}`, data, {
+      .put(`${this.API_BASE_URL}${endpoint}`, data, {
         ...options,
-        headers: this.getHeaders(options?.headers)
+        headers: this.getHeaders(options?.headers),
+        observe: 'body'
       })
       .pipe(
-        filter(event => event instanceof HttpResponse),
-        map(response => (response as HttpResponse<ApiResponse<T>>).body as ApiResponse<T>),
         timeout(this.REQUEST_TIMEOUT),
         catchError(error => this.handleError(error))
       );
@@ -83,15 +79,14 @@ export class ApiService {
    * @param endpoint - Ruta relativa del endpoint
    * @param options - Opciones adicionales de HTTP
    */
-  delete<T>(endpoint: string, options?: any): Observable<ApiResponse<T>> {
+  delete<T>(endpoint: string, options?: any): Observable<any> {
     return this.http
-      .delete<ApiResponse<T>>(`${this.API_BASE_URL}${endpoint}`, {
+      .delete(`${this.API_BASE_URL}${endpoint}`, {
         ...options,
-        headers: this.getHeaders(options?.headers)
+        headers: this.getHeaders(options?.headers),
+        observe: 'body'
       })
       .pipe(
-        filter(event => event instanceof HttpResponse),
-        map(response => (response as HttpResponse<ApiResponse<T>>).body as ApiResponse<T>),
         timeout(this.REQUEST_TIMEOUT),
         catchError(error => this.handleError(error))
       );
@@ -103,15 +98,14 @@ export class ApiService {
    * @param data - Datos a enviar
    * @param options - Opciones adicionales de HTTP
    */
-  patch<T>(endpoint: string, data: any, options?: any): Observable<ApiResponse<T>> {
+  patch<T>(endpoint: string, data: any, options?: any): Observable<any> {
     return this.http
-      .patch<ApiResponse<T>>(`${this.API_BASE_URL}${endpoint}`, data, {
+      .patch(`${this.API_BASE_URL}${endpoint}`, data, {
         ...options,
-        headers: this.getHeaders(options?.headers)
+        headers: this.getHeaders(options?.headers),
+        observe: 'body'
       })
       .pipe(
-        filter(event => event instanceof HttpResponse),
-        map(response => (response as HttpResponse<ApiResponse<T>>).body as ApiResponse<T>),
         timeout(this.REQUEST_TIMEOUT),
         catchError(error => this.handleError(error))
       );
@@ -142,30 +136,20 @@ export class ApiService {
    * ISO 27001 - Logging y tratamiento seguro de errores
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
-    let apiError: ApiError = {
+    let apiError = {
       code: error.status?.toString() || 'UNKNOWN',
-      message: 'Error en la solicitud al servidor',
+      message: error.error?.message || error.statusText || 'Error del servidor',
       timestamp: new Date()
     };
 
     if (error.error instanceof ErrorEvent) {
-      // Error del cliente
       apiError = {
         code: 'CLIENT_ERROR',
         message: error.error.message,
         timestamp: new Date()
       };
-    } else {
-      // Error del servidor
-      apiError = {
-        code: error.status?.toString() || 'SERVER_ERROR',
-        message: error.error?.message || error.statusText || 'Error del servidor',
-        details: error.error?.errors,
-        timestamp: new Date()
-      };
     }
 
-    // Log de errores (en producción esto iría a un servicio de logging)
     console.error('[API Error]', apiError);
 
     return throwError(() => apiError);
