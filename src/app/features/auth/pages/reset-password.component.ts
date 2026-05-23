@@ -32,7 +32,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
   successMessage = '';
   token: string = '';
   showPassword = false;
-  showConfirmPassword = false;
 
   ngOnInit(): void {
     this.getTokenFromUrl();
@@ -45,7 +44,16 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Extrae el token de la URL.
+   * Usa snapshot primero (captura en recarga de página / acceso directo)
+   * y se suscribe a `params` para cambios dinámicos dentro de Angular.
+   */
   private getTokenFromUrl(): void {
+    // Captura inmediata el parámetro del snapshot
+    this.token = this.activatedRoute.snapshot.params['token'] || '';
+
+    // Se suscribe a cambios dinámicos de parámetros
     this.activatedRoute.params
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -55,9 +63,8 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
   private initializeForm(): void {
     this.resetPasswordForm = this.formBuilder.group({
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+      newPassword: ['', [Validators.required, Validators.minLength(8)]]
+    });
   }
 
   private subscribeToAuthState(): void {
@@ -68,17 +75,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
       });
   }
 
-  private passwordMatchValidator(formGroup: FormGroup): { [key: string]: any } | null {
-    const password = formGroup.get('newPassword')?.value;
-    const confirmPassword = formGroup.get('confirmPassword')?.value;
-
-    if (password !== confirmPassword) {
-      return { passwordMismatch: true };
-    }
-
-    return null;
-  }
-
   onResetPassword(): void {
     if (this.resetPasswordForm.invalid || !this.token) {
       this.errorMessage = 'Enlace de recuperación inválido o expirado';
@@ -87,8 +83,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
 
     const data: ResetPasswordRequest = {
       token: this.token,
-      newPassword: this.resetPasswordForm.value.newPassword,
-      confirmPassword: this.resetPasswordForm.value.confirmPassword
+      newPassword: this.resetPasswordForm.value.newPassword
     };
 
     this.errorMessage = '';
@@ -116,10 +111,6 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     this.showPassword = !this.showPassword;
   }
 
-  toggleConfirmPasswordVisibility(): void {
-    this.showConfirmPassword = !this.showConfirmPassword;
-  }
-
   goToLogin(): void {
     this.router.navigate(['/auth/login']);
   }
@@ -133,7 +124,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     const control = this.resetPasswordForm.get(fieldName);
 
     if (control?.hasError('required')) {
-      return `${fieldName === 'newPassword' ? 'Contraseña' : 'Confirmar Contraseña'} es requerido`;
+      return 'Contraseña es requerida';
     }
 
     if (control?.hasError('minlength')) {
@@ -141,10 +132,5 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     }
 
     return '';
-  }
-
-  hasPasswordMismatch(): boolean {
-    return (this.resetPasswordForm.hasError('passwordMismatch') ?? false) &&
-           (this.resetPasswordForm.get('confirmPassword')?.touched ?? false);
   }
 }
